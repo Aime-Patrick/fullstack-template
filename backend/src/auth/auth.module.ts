@@ -16,11 +16,19 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const secret = configService.getOrThrow<string>('JWT_SECRET');
-        const expiresIn =
-          configService.getOrThrow<StringValue>('JWT_EXPIRES_IN');
+        const secretValue = configService.get<unknown>('JWT_SECRET');
+        if (typeof secretValue !== 'string' || !secretValue) {
+          throw new Error('JWT_SECRET is required');
+        }
+
+        const expiresInValue = configService.get<unknown>('JWT_EXPIRES_IN');
+        const expiresIn: StringValue =
+          typeof expiresInValue === 'string'
+            ? (expiresInValue as StringValue)
+            : '1d';
+
         const options: JwtModuleOptions = {
-          secret,
+          secret: secretValue,
           signOptions: { expiresIn },
         };
         return options;
