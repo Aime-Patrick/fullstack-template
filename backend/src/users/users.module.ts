@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InMemoryUsersRepository } from './in-memory-users.repository';
+import { PrismaUsersRepository } from './prisma-users.repository';
 import { USERS_REPOSITORY } from './users.repository';
 import { UsersService } from './users.service';
 
@@ -7,9 +9,18 @@ import { UsersService } from './users.service';
   providers: [
     UsersService,
     InMemoryUsersRepository,
+    PrismaUsersRepository,
     {
       provide: USERS_REPOSITORY,
-      useExisting: InMemoryUsersRepository,
+      inject: [ConfigService, InMemoryUsersRepository, PrismaUsersRepository],
+      useFactory: (
+        configService: ConfigService,
+        inMemoryRepo: InMemoryUsersRepository,
+        prismaRepo: PrismaUsersRepository,
+      ) =>
+        configService.get('DB_PROVIDER') === 'prisma'
+          ? prismaRepo
+          : inMemoryRepo,
     },
   ],
   exports: [UsersService],

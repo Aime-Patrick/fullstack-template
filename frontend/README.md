@@ -22,13 +22,13 @@ Required values:
 ## Development
 
 ```bash
-npm install
-npm run dev -- --port 3001
+pnpm install
+pnpm run dev -- --port 3001
 ```
 
 ## Quality checks
 
 ```bash
-npm run lint
-npm run build
+pnpm run lint
+pnpm run build
 ```

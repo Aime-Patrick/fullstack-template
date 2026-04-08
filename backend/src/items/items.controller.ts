@@ -21,22 +21,22 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Get()
-  findAll(@CurrentUser() user: AuthUser) {
+  async findAll(@CurrentUser() user: AuthUser) {
     return this.itemsService.findAllByUser(user.userId);
   }
 
   @Get(':id')
-  findOne(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+  async findOne(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.itemsService.findOneByUser(user.userId, id);
   }
 
   @Post()
-  create(@CurrentUser() user: AuthUser, @Body() dto: CreateItemDto) {
+  async create(@CurrentUser() user: AuthUser, @Body() dto: CreateItemDto) {
     return this.itemsService.create(user.userId, dto);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Body() dto: UpdateItemDto,
@@ -45,7 +45,7 @@ export class ItemsController {
   }
 
   @Delete(':id')
-  remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+  async remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.itemsService.remove(user.userId, id);
   }
 }

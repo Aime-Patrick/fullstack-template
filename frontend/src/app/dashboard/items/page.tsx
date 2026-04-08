@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,42 +15,69 @@ type Item = {
   description?: string;
 };
 
+const ITEMS_QUERY_KEY = ["items"];
+
 export default function ItemsPage() {
-  const [items, setItems] = useState<Item[]>([]);
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
 
-  const fetchItems = async () => {
-    try {
+  const itemsQuery = useQuery({
+    queryKey: ITEMS_QUERY_KEY,
+    queryFn: async () => {
       const response = await api.get<Item[]>("/items");
-      setItems(response.data);
-    } catch {
-      setError("Failed to load items");
-    } finally {
-      setLoading(false);
-    }
+      return response.data;
+    },
+  });
+
+  const invalidateItems = async () => {
+    await queryClient.invalidateQueries({ queryKey: ITEMS_QUERY_KEY });
   };
 
-  useEffect(() => {
-    void fetchItems();
-  }, []);
+  const createItemMutation = useMutation({
+    mutationFn: async (payload: { name: string; description: string }) => {
+      await api.post("/items", payload);
+    },
+    onSuccess: invalidateItems,
+  });
+
+  const updateItemMutation = useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: { name: string; description: string };
+    }) => {
+      await api.patch(`/items/${id}`, payload);
+    },
+    onSuccess: invalidateItems,
+  });
+
+  const deleteItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/items/${id}`);
+    },
+    onSuccess: invalidateItems,
+  });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
       if (editingId) {
-        await api.patch(`/items/${editingId}`, { name, description });
+        await updateItemMutation.mutateAsync({
+          id: editingId,
+          payload: { name, description },
+        });
       } else {
-        await api.post("/items", { name, description });
+        await createItemMutation.mutateAsync({ name, description });
       }
       setName("");
       setDescription("");
       setEditingId(null);
-      await fetchItems();
     } catch {
       setError("Failed to save item");
     }
@@ -64,8 +92,7 @@ export default function ItemsPage() {
   const onDelete = async (id: string) => {
     setError("");
     try {
-      await api.delete(`/items/${id}`);
-      await fetchItems();
+      await deleteItemMutation.mutateAsync(id);
     } catch {
       setError("Failed to delete item");
     }
@@ -115,14 +142,17 @@ export default function ItemsPage() {
       </Card>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {itemsQuery.isError ? (
+        <p className="text-sm text-red-600">Failed to load items</p>
+      ) : null}
 
       <div className="grid gap-4">
-        {loading ? (
+        {itemsQuery.isLoading ? (
           <p className="text-sm text-zinc-600">Loading items...</p>
-        ) : items.length === 0 ? (
+        ) : !itemsQuery.data || itemsQuery.data.length === 0 ? (
           <Card>No items yet.</Card>
         ) : (
-          items.map((item) => (
+          itemsQuery.data.map((item) => (
             <Card key={item.id} className="space-y-2">
               <h3 className="font-semibold">{item.name}</h3>
               <p className="text-sm text-zinc-600">{item.description}</p>

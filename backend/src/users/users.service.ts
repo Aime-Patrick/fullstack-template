@@ -10,15 +10,15 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  findByEmail(email: string): User | undefined {
+  async findByEmail(email: string): Promise<User | undefined> {
     return this.usersRepository.findByEmail(email);
   }
 
-  findById(id: string): User | undefined {
+  async findById(id: string): Promise<User | undefined> {
     return this.usersRepository.findById(id);
   }
 
-  create(email: string, passwordHash: string): User {
+  async create(email: string, passwordHash: string): Promise<User> {
     return this.usersRepository.create(email, passwordHash);
   }
 }

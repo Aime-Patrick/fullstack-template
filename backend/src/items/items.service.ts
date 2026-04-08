@@ -12,32 +12,32 @@ export class ItemsService {
     private readonly itemsRepository: ItemsRepository,
   ) {}
 
-  findAllByUser(userId: string): Item[] {
+  async findAllByUser(userId: string): Promise<Item[]> {
     return this.itemsRepository.findAllByUser(userId);
   }
 
-  findOneByUser(userId: string, id: string): Item {
-    const item = this.itemsRepository.findOneByUser(userId, id);
+  async findOneByUser(userId: string, id: string): Promise<Item> {
+    const item = await this.itemsRepository.findOneByUser(userId, id);
     if (!item) {
       throw new NotFoundException('Item not found');
     }
     return item;
   }
 
-  create(userId: string, dto: CreateItemDto): Item {
+  async create(userId: string, dto: CreateItemDto): Promise<Item> {
     return this.itemsRepository.create(userId, dto);
   }
 
-  update(userId: string, id: string, dto: UpdateItemDto): Item {
-    const item = this.itemsRepository.update(userId, id, dto);
+  async update(userId: string, id: string, dto: UpdateItemDto): Promise<Item> {
+    const item = await this.itemsRepository.update(userId, id, dto);
     if (!item) {
       throw new NotFoundException('Item not found');
     }
     return item;
   }
 
-  remove(userId: string, id: string): { message: string } {
-    const removed = this.itemsRepository.remove(userId, id);
+  async remove(userId: string, id: string): Promise<{ message: string }> {
+    const removed = await this.itemsRepository.remove(userId, id);
     if (!removed) {
       throw new NotFoundException('Item not found');
     }

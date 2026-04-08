@@ -9,17 +9,19 @@ import { ItemsRepository } from './items.repository';
 export class InMemoryItemsRepository implements ItemsRepository {
   private items: Item[] = [];
 
-  findAllByUser(userId: string): Item[] {
-    return this.items.filter((item) => item.createdBy === userId);
-  }
-
-  findOneByUser(userId: string, id: string): Item | undefined {
-    return this.items.find(
-      (entry) => entry.id === id && entry.createdBy === userId,
+  findAllByUser(userId: string): Promise<Item[]> {
+    return Promise.resolve(
+      this.items.filter((item) => item.createdBy === userId),
     );
   }
 
-  create(userId: string, dto: CreateItemDto): Item {
+  findOneByUser(userId: string, id: string): Promise<Item | undefined> {
+    return Promise.resolve(
+      this.items.find((entry) => entry.id === id && entry.createdBy === userId),
+    );
+  }
+
+  create(userId: string, dto: CreateItemDto): Promise<Item> {
     const now = new Date().toISOString();
     const item: Item = {
       id: randomUUID(),
@@ -30,23 +32,29 @@ export class InMemoryItemsRepository implements ItemsRepository {
       updatedAt: now,
     };
     this.items.push(item);
-    return item;
+    return Promise.resolve(item);
   }
 
-  update(userId: string, id: string, dto: UpdateItemDto): Item | undefined {
-    const item = this.findOneByUser(userId, id);
-    if (!item) return undefined;
+  update(
+    userId: string,
+    id: string,
+    dto: UpdateItemDto,
+  ): Promise<Item | undefined> {
+    const item = this.items.find(
+      (entry) => entry.id === id && entry.createdBy === userId,
+    );
+    if (!item) return Promise.resolve(undefined);
     item.name = dto.name ?? item.name;
     item.description = dto.description ?? item.description;
     item.updatedAt = new Date().toISOString();
-    return item;
+    return Promise.resolve(item);
   }
 
-  remove(userId: string, id: string): boolean {
+  remove(userId: string, id: string): Promise<boolean> {
     const before = this.items.length;
     this.items = this.items.filter(
       (entry) => !(entry.id === id && entry.createdBy === userId),
     );
-    return this.items.length < before;
+    return Promise.resolve(this.items.length < before);
   }
 }

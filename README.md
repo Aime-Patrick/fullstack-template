@@ -6,6 +6,7 @@ Production-ready starter template with:
 - NestJS REST API with modular architecture
 - JWT authentication and protected routes
 - Reusable CRUD module example (`items`)
+- Optional Prisma + PostgreSQL data layer
 
 ## Project Structure
 
@@ -29,24 +30,47 @@ fullstack-template/
 
 ## Setup
 
+### One-command installer (CLI)
+
+After publishing `create-fullstack-template` to npm:
+
+```bash
+npx create-fullstack-template my-app
+```
+
+It interactively configures env variables, DB provider, ports, package manager (`pnpm` or `npm`), and optional dependency installation.
+You can choose `fullstack`, `backend` only, or `frontend` only during setup.
+
 ### 1) Backend
 
 ```bash
 cd backend
 cp .env.example .env
-npm install
-npm run start:dev
+pnpm install
+pnpm run start:dev
 ```
 
 Backend runs on `http://localhost:3000`.
+
+If you want PostgreSQL persistence:
+
+1. set `DB_PROVIDER=prisma` in `backend/.env`
+2. set a valid `DATABASE_URL`
+3. run:
+
+```bash
+cd backend
+pnpm run prisma:generate
+pnpm run prisma:migrate
+```
 
 ### 2) Frontend
 
 ```bash
 cd frontend
 cp .env.example .env.local
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Frontend runs on `http://localhost:3001` (or default Next.js port).

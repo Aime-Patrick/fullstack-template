@@ -1,0 +1,15 @@
+{
+  "name": "create-fullstack-template",
+  "version": "0.1.0",
+  "description": "Interactive installer for the fullstack template",
+  "type": "module",
+  "bin": {
+    "create-fullstack-template": "./bin/create-fullstack-template.mjs"
+  },
+  "scripts": {
+    "start": "node ./bin/create-fullstack-template.mjs"
+  },
+  "dependencies": {
+    "degit": "^2.8.4"
+  }
+}

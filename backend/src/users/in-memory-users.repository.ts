@@ -7,15 +7,17 @@ import { UsersRepository } from './users.repository';
 export class InMemoryUsersRepository implements UsersRepository {
   private users: User[] = [];
 
-  findByEmail(email: string): User | undefined {
-    return this.users.find((user) => user.email === email.toLowerCase());
+  findByEmail(email: string): Promise<User | undefined> {
+    return Promise.resolve(
+      this.users.find((user) => user.email === email.toLowerCase()),
+    );
   }
 
-  findById(id: string): User | undefined {
-    return this.users.find((user) => user.id === id);
+  findById(id: string): Promise<User | undefined> {
+    return Promise.resolve(this.users.find((user) => user.id === id));
   }
 
-  create(email: string, passwordHash: string): User {
+  create(email: string, passwordHash: string): Promise<User> {
     const user: User = {
       id: randomUUID(),
       email: email.toLowerCase(),
@@ -23,6 +25,6 @@ export class InMemoryUsersRepository implements UsersRepository {
       createdAt: new Date().toISOString(),
     };
     this.users.push(user);
-    return user;
+    return Promise.resolve(user);
   }
 }

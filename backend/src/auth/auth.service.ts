@@ -18,13 +18,13 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ accessToken: string }> {
-    const existingUser = this.usersService.findByEmail(email);
+    const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new ConflictException('Email already registered');
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = this.usersService.create(email, passwordHash);
+    const user = await this.usersService.create(email, passwordHash);
 
     return this.signToken(user.id, user.email);
   }
@@ -33,7 +33,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ accessToken: string }> {
-    const user = this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }

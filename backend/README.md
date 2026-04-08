@@ -21,19 +21,45 @@ Required values:
 - `JWT_SECRET`
 - `JWT_EXPIRES_IN` (default `1d`)
 - `CORS_ORIGIN` (default `http://localhost:3001`)
+- `DB_PROVIDER` (`inmemory` or `prisma`, default `inmemory`)
+- `DATABASE_URL` (required when `DB_PROVIDER=prisma`)
 
 ## Development
 
 ```bash
-npm install
-npm run start:dev
+pnpm install
+pnpm run start:dev
 ```
 
 ## Quality checks
 
 ```bash
-npm run lint
-npm run build
+pnpm run lint
+pnpm run build
+```
+
+## Custom module generator
+
+Use the project generator to scaffold feature modules with your template pattern:
+
+```bash
+pnpm run generate:module
+```
+
+It asks for:
+
+- module name (plural)
+- whether routes are JWT-protected
+- whether to include Prisma repository scaffold + `DB_PROVIDER` switching
+
+Generated files include DTOs, interface, repository token/interface, in-memory repository, service, controller, and module.
+
+## Prisma setup (PostgreSQL)
+
+```bash
+# set DB_PROVIDER=prisma in .env first
+pnpm run prisma:generate
+pnpm run prisma:migrate
 ```
 
 ## Reusability note
