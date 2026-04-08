@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import type { JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import type { StringValue } from 'ms';
@@ -15,12 +16,14 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const expiresIn = (configService.get('JWT_EXPIRES_IN') ??
-          '1d') as StringValue;
-        return {
-          secret: configService.getOrThrow<string>('JWT_SECRET'),
+        const secret = configService.getOrThrow<string>('JWT_SECRET');
+        const expiresIn =
+          configService.getOrThrow<StringValue>('JWT_EXPIRES_IN');
+        const options: JwtModuleOptions = {
+          secret,
           signOptions: { expiresIn },
         };
+        return options;
       },
     }),
   ],
